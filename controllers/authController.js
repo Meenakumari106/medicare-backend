@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 
 const generateToken=user=>
 {
-   return jwt.sign({id:user._id,role:user.role},process.env.JWt_SECRET_key,{
+   return jwt.sign({id:user._id,role:user.role},process.env.JWT_SECRET_KEY,{
     expiresIn:'15d',
    })  
 }
@@ -64,18 +64,21 @@ export const register = async (req, res) => {
      }
 };
 export const login = async (req, res) => {
-    const {email,password}=res.body
+    const {email,password}=req.body
+
+
     try {
         let user=null;
         const patient =await User.findOne({email});
-        const doctor=await User.findOne({email});
+        const doctor =await Doctor.findOne({email});
+    
          if(patient)
          {
             user=patient;
          }
          if(doctor)
          {
-            user=doctor
+            user=doctor;
          }
          //check if user  exist or not
          if(!user)
@@ -86,16 +89,30 @@ export const login = async (req, res) => {
        //if user exist then check for the password correctness
        //compare the passeord
 
-       const isPasswordMatch =await bcrypt.compare(password,user.password)
+       const isPasswordMatch =await bcrypt.compare(req.body.password,user.password)
 
         if(!isPasswordMatch)
         {
-            return res.status(400).json({status:false,message:"Invalid Crendentials"});
+            return res
+             .status(400)
+             .json({status:false,message:"Invalid Crendentials"});
         }
          
 
         //if password is match then we generate a authenication token
         const token=generateToken(user)
 
-    } catch (err) { }
+        const {password,role,appointments,...rest}=user._doc
+
+        res
+        .status(200)
+        .json({status:true,message:"Successfully Loggedin" ,token,data:{...rest},role});
+
+
+    } catch (err) { 
+        res
+        .status(500)
+        .json({status:false,message:"Failed to login"});
+
+    }
 };
