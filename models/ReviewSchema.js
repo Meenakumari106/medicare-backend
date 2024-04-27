@@ -34,7 +34,7 @@ reviewSchema.pre(/^find/,function(next)
     select:"name photo",
   });
   next();
-})
+});
 
 reviewSchema.statics.calcAverageRatings =async function (doctorId)
 {
@@ -50,14 +50,15 @@ reviewSchema.statics.calcAverageRatings =async function (doctorId)
         _id:"$doctor",
         numofRating:{$sum:1},
         avgRating:{$avg:'$rating'}
-      }
-     }
-    ])
-   await Doctor.findByIdAndDelete(doctorId,
+      },
+     },
+    ]);
+   await Doctor.findByIdAndUpdate(doctorId,
     {
       totalRating:stats[0].numofRating,
-      avaergeRating:stats[0].avgRating,
+      averageRating:stats[0].avgRating,
     });
+    // console.log(stats)
 };
 
 reviewSchema.post('save',function()
