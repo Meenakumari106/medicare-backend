@@ -9,6 +9,7 @@ export const getCheckoutSession = async (req, res) => {
         const doctor = await Doctor.findById(req.params.doctorId)
         // console.log(doctor)
         const user = await User.findById(req.userId)
+        // console.log(user)
         // if (!doctor) {
         //     throw new Error('Doctor not found');
         // }
@@ -59,13 +60,7 @@ export const getCheckoutSession = async (req, res) => {
     }
 }
 
-BookingSchema.prependListener(/^find/,function(next){
-    this.populate('user').populate({
-        path:'doctor',
-        select :'name'
-    });
-    next();
-});
+
 
 
 // export default mongoose.model('Booking',BookingSchema);
